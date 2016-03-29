@@ -5,7 +5,7 @@
     /// 
     /// @author DisTurBinG
     /// </summary>
-    public struct UnityUpdateEvent : IDispatchedEvent
+    public class UnityUpdateEvent : IDispatchedEvent
     {
         
     }

@@ -1,4 +1,5 @@
-﻿using NSubstitute;
+﻿using DTools.Suice;
+using NSubstitute;
 using NUnit.Framework;
 using SuiceExample.Factory;
 using SuiceExample.Snowman;
@@ -22,14 +23,32 @@ namespace SuiceExample.Test
 
         private SnowmanController snowmanController;
 
+
+        private GameObject prefabTemplate;
+
         [SetUp]
         public void Setup()
         {
-            snowmanMoveComponent = Substitute.For<ISnowmanMoveComponent>();
-            snowmanPoolManager = Substitute.For<ISnowmanPoolManager>();
+            prefabTemplate = new GameObject("Snowman");
+
             unityResources = Substitute.For<IUnityResources>();
-        
+            snowmanPoolManager = Substitute.For<ISnowmanPoolManager>();
+            snowmanMoveComponent = Substitute.For<ISnowmanMoveComponent>();
+
+            unityResources.Load(SnowmanController.SNOWMAN_ASSET_PATH, typeof(GameObject)).Returns(prefabTemplate);
+            unityResources.Instantiate(prefabTemplate).Returns(prefabTemplate);
+            
             snowmanController = new SnowmanController(snowmanPoolManager, unityResources);
+            snowmanController.Initialize();
+
+            var prop = snowmanController.GetType().GetField("moveComponent", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            prop.SetValue(snowmanController, snowmanMoveComponent);
+        }
+
+        [TearDown]
+        public void Cleanup()
+        {
+            Object.DestroyImmediate(prefabTemplate);
         }
 
         [Test]
